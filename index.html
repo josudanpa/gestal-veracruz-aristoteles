@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerente de ventas · Gestalt Cancún</title>
+<title>Gerente de ventas · Gestalt Veracruz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -119,6 +119,38 @@
   .stat-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); font-weight: 600; margin-bottom: 2px; }
   .stat-value { font-family: var(--display); font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.15; }
   .stat-sub { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+
+  /* ---------- Recuadro grande: lo que recibe la IA ---------- */
+  .ia-callout {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface-2); border: 1px solid var(--border-soft); border-left: 4px solid var(--c-neutral);
+    border-radius: var(--radius-md); padding: 18px 20px; margin: 0 0 20px;
+  }
+  .ia-callout .stat-icon { width: 48px; height: 48px; border-radius: 12px; }
+  .ia-callout-title { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+  .ia-callout-num { font-size: 26px; font-weight: 700; letter-spacing: -.01em; margin: 0 2px; }
+  .ia-callout-text { font-size: 13px; color: var(--ink-soft); line-height: 1.55; margin-top: 4px; max-width: 760px; }
+
+  /* ---------- Historial de cada lead «sin atender» ---------- */
+  .btn-hist {
+    background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--border);
+    padding: 4px 11px; font-size: 12px; font-weight: 500; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-hist:hover { color: var(--ink); border-color: var(--ink-soft); }
+  tr.hist-row[hidden] { display: none; }
+  tr.hist-row > td { background: var(--surface-2); padding: 14px 18px; }
+  /* El historial se queda pegado a la izquierda y con ancho de pantalla aunque la tabla tenga scroll horizontal */
+  .hist-box { position: sticky; left: 0; width: min(760px, calc(100vw - 110px)); white-space: normal; }
+  .hist-resumen { font-size: 12.5px; color: var(--ink); margin: 0 0 10px; line-height: 1.5; max-width: 760px; }
+  .hist-lista { list-style: none; margin: 0; padding: 0 0 0 5px; border-left: 2px solid var(--border); }
+  .hist-lista li { position: relative; padding: 3px 0 3px 14px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+  .hist-lista li::before { content: ''; position: absolute; left: -7px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); }
+  .hist-lista li.persona::before { background: var(--c-positive); }
+  .hist-lista li.entrega::before { background: var(--c-neutral); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-neutral) 25%, transparent); }
+  .hist-fecha { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); margin-right: 8px; white-space: nowrap; }
+  .hist-quien { font-weight: 600; color: var(--ink); }
+  .hist-nota { color: var(--ink-faint); font-size: 11.5px; }
+  .hist-marca { color: var(--c-neutral); font-weight: 600; margin-left: 4px; }
 
   /* ---------- Form controls ---------- */
   label.field-label { font-size: 12.5px; color: var(--ink-soft); display: block; margin-bottom: 6px; font-weight: 500; }
@@ -282,7 +314,7 @@
     <div class="brand">
       <div class="brand-mark" id="brandIcon"></div>
       <div>
-        <div class="eyebrow">Gestalt Cancún · Gerente de ventas</div>
+        <div class="eyebrow">Gestalt Veracruz · Gerente de ventas</div>
         <h1>Reporte de desempeño y pipeline</h1>
       </div>
     </div>
@@ -355,7 +387,7 @@
       </div>
       <p class="help">Leads que pasaron a una etapa Hot en el periodo, ya sea porque la IA los delegó o porque el propio asesor los movió, vistos de dos formas — por asesor y por embudo. Las dos sumas tienen que coincidir: es la misma población de leads, nada más que el desglose es distinto.</p>
       <div id="leadsPeriodoStats"></div>
-      <p class="help" id="iaResumen" style="margin-bottom:6px;"></p>
+      <div class="ia-callout" id="iaResumen"></div>
       <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:14px;">
         <div style="flex:1; min-width:260px;">
           <h3 style="font-family:var(--display); font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0 0 8px; text-decoration:underline; text-underline-offset:3px;">Leads que llegan a cada asesor</h3>
@@ -388,11 +420,11 @@
         <div class="panel-icon" id="iconTiempos"></div>
         <h2>Atención a los leads que delega la IA</h2>
       </div>
-      <p class="help">Desde que la IA delega un lead a un asesor (lo pasa a una etapa Hot), cuánto tarda ese asesor en hacer algo con él: mandar un WhatsApp, escribir una nota, completar una tarea o mover la etapa. El tiempo cuenta solo horas de lunes a viernes, de 9:00 a 18:00. Los leads que el propio asesor mueve a Hot no entran aquí: ahí ya empezó él.</p>
+      <p class="help">Desde que la IA delega un lead a un asesor (lo pasa a una etapa Hot), cuánto tarda ese asesor en hacer algo con él: mandar un WhatsApp, escribir una nota, completar una tarea o mover la etapa. El tiempo cuenta solo horas de lunes a viernes, de 9:00 a 18:00. Los leads que el propio asesor mueve a Hot no entran aquí: ahí ya empezó él. Si la IA regresa un lead a una etapa fría o perdida sin que su asesor lo toque, se cuenta aparte como «Ya no están en Hot» y no como «sin atender».</p>
       <div id="atencionStats"></div>
       <div id="atencionTable"></div>
       <h3 style="font-family:var(--display); font-size:13px; color:var(--ink-soft); font-weight:600; margin:22px 0 4px; letter-spacing:-.005em;">Delegados sin atender</h3>
-      <p class="help" style="margin-bottom:12px;">Leads que la IA delegó hace más de 24 horas y que su asesor todavía no toca (ni mensaje, ni nota, ni tarea, ni cambio de etapa). Del más antiguo al más reciente.</p>
+      <p class="help" style="margin-bottom:12px;">Leads que la IA delegó hace más de 24 horas, que siguen en una etapa Hot (o ya en Inscrito) y que su asesor todavía no toca (ni mensaje, ni nota, ni tarea, ni cambio de etapa). Del más antiguo al más reciente. Con «Ver qué pasó» se abre el historial de cada lead: qué le pasó, quién lo movió y cómo llegó a esa etapa.</p>
       <div id="atencionSinAtender"></div>
       <div class="help" id="atencionNota" style="margin-top:10px;"></div>
     </div>
@@ -537,8 +569,8 @@ paintIcon('iconLeadsCalifLista', 'users', 'var(--c-positive)');
 paintIcon('iconExportar', 'download', 'var(--ink)');
 
 /* ============================== DATOS ============================== */
-const WEBHOOK_URL = "https://digital-crew-n8n.xrzfaj.easypanel.host/webhook/GERENTE-VENTAS-GESTALT-CANCUN";
-const KOMMO_SUBDOMAIN = "direccioncancun";
+const WEBHOOK_URL = "https://digital-crew-n8n.xrzfaj.easypanel.host/webhook/GERENTE-VENTAS-GESTALT-VERACRUZ";
+const KOMMO_SUBDOMAIN = "direccionveracruz";
 function kommoLeadUrl(leadId) { return `https://${KOMMO_SUBDOMAIN}.kommo.com/leads/detail/${leadId}`; }
 function leadLinkHtml(leadId, texto) {
   if (leadId == null) return texto;
@@ -925,9 +957,13 @@ function renderLeadsPorPeriodo(payload) {
       : '') +
     '</div>';
 
-  // Lo de la IA, en una sola línea: no se audita a la IA, solo se dice cuánto recibió y cuánto pasó a los asesores.
-  els.iaResumen.innerHTML = '<b style="color:var(--ink-soft)">La IA recibió ' + fmtNum(ia.leads_nuevos) + ' leads nuevos en el periodo</b> y los atiende primero. ' +
-    'A los asesores solo les llega lo que pasa a una etapa Hot; lo demás (bases importadas, leads fríos) se queda con la IA y no cuenta en las métricas de los asesores.';
+  // Lo de la IA: no se audita a la IA; un recuadro grande dice cuánto recibió y qué cuenta para los asesores.
+  els.iaResumen.innerHTML =
+    '<div class="stat-icon" style="--stat-color:var(--c-neutral)">' + icon('barChart', 'var(--c-neutral)', 24) + '</div>' +
+    '<div class="ia-callout-body">' +
+      '<div class="ia-callout-title">La IA recibió <span class="ia-callout-num">' + fmtNum(ia.leads_nuevos) + '</span> leads nuevos en el periodo y los atiende primero.</div>' +
+      '<div class="ia-callout-text">A los asesores solo les llega lo que pasa a una etapa Hot; lo demás (bases importadas, leads fríos) se queda con la IA y no cuenta en las métricas de los asesores.</div>' +
+    '</div>';
 
   els.leadsPorAsesorTable.innerHTML = miniTabla(filasAsesor, 'Asesor');
   els.leadsPorEmbudoTable.innerHTML = tablaLeadsPorEmbudo(filasEmbudo);
@@ -1542,6 +1578,44 @@ function fmtHoras(seg) {
   return (seg / 3600).toFixed(1) + ' h';
 }
 
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+function escH(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+// Hora en la zona de la sede: el flujo manda `zona_horas` (diferencia con UTC, p. ej. -5 o -6)
+function fmtHoraSede(ts, zonaHoras) {
+  const d = new Date((ts + (zonaHoras == null ? -6 : zonaHoras) * 3600) * 1000);
+  return d.getUTCDate() + ' ' + MESES_CORTOS[d.getUTCMonth()] + ' ' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+}
+// Qué le pasó a un lead «sin atender» y quién lo hizo (sin usuario = la IA o una automatización)
+function historialLeadHtml(s, zona) {
+  const ev = s.historial || [];
+  if (!ev.length) return '<div class="help" style="margin:0;">No se encontró historial de este lead en Kommo.</div>';
+  const quien = (e) => e.persona
+    ? '<span class="hist-quien">' + escH(e.por) + '</span>'
+    : '<span class="hist-quien">La IA o el sistema</span> <span class="hist-nota">(sin usuario)</span>';
+  const items = ev.map(e => {
+    let txt;
+    if (e.tipo === 'lead_added') txt = quien(e) + ' creó el lead';
+    else if (e.tipo === 'lead_status_changed') txt = quien(e) + ' lo movió de <b>' + escH(e.de || '?') + '</b> a <b>' + escH(e.a || '?') + '</b>';
+    else if (e.tipo === 'common_note_added') txt = quien(e) + ' escribió una nota';
+    else if (e.tipo === 'task_completed') txt = quien(e) + ' completó una tarea';
+    else if (e.tipo === 'entity_responsible_changed') txt = quien(e) + ' cambió el responsable de <b>' + escH(e.de || '?') + '</b> a <b>' + escH(e.a || '?') + '</b>';
+    else txt = quien(e) + ' · ' + escH(e.tipo);
+    const entrega = e.tipo === 'lead_status_changed' && e.ts === s.entregado;
+    return '<li class="' + (e.persona ? 'persona' : '') + (entrega ? ' entrega' : '') + '"><span class="hist-fecha">' + fmtHoraSede(e.ts, zona) + '</span>' + txt +
+      (entrega ? ' <span class="hist-marca">← aquí la IA se lo delegó a su asesor</span>' : '') + '</li>';
+  }).join('');
+  const despues = ev.filter(e => e.ts > s.entregado);
+  const deGente = despues.filter(e => e.persona);
+  const plural = despues.length === 1 ? '' : 's';
+  const resumen = 'La IA se lo delegó a su asesor el ' + fmtHoraSede(s.entregado, zona) + '. ' + (despues.length
+    ? 'Desde entonces hay ' + despues.length + ' movimiento' + plural + ' registrado' + plural + ': ' + (deGente.length
+      ? deGente.length + ' de una persona (' + [...new Set(deGente.map(e => e.por))].map(escH).join(', ') + ') y ' + (despues.length - deGente.length) + ' del sistema.'
+      : 'todos del sistema o la IA, ninguno de una persona.')
+    : 'Desde entonces no hay ningún movimiento registrado.');
+  const omit = s.historial_omitidos > 0 ? '<div class="help" style="margin:8px 0 0;">Se muestran los últimos ' + ev.length + ' movimientos; hay ' + s.historial_omitidos + ' más antiguos.</div>' : '';
+  return '<p class="hist-resumen">' + resumen + '</p><ul class="hist-lista">' + items + '</ul>' + omit;
+}
+
 function renderAtencion(payload) {
   const asesores = Object.values(payload.por_asesor || {}).filter(a => a.delegados_ia > 0)
     .sort((a, b) => (b.sin_atender - a.sin_atender) || (b.delegados_ia - a.delegados_ia));
@@ -1550,6 +1624,7 @@ function renderAtencion(payload) {
   const atendidos = suma('atendidos');
   const sinAtender = suma('sin_atender');
   const enPlazo = suma('en_plazo');
+  const fueraHot = suma('fuera_de_hot');
   const umbral = payload.umbral_horas || 24;
 
   if (!delegados) {
@@ -1568,7 +1643,8 @@ function renderAtencion(payload) {
   els.atencionStats.innerHTML = '<div class="stats-row">' +
     statCard('zap', 'var(--c-positive)', 'Delegados por la IA', fmtNum(delegados), fmtNum(enPlazo) + ' todavía dentro de las ' + umbral + ' h') +
     statCard('checkCircle', 'var(--c-positive)', 'Atendidos por su asesor', fmtNum(atendidos), pctF(atendidos, delegados) + ' de los delegados') +
-    statCard('xCircle', 'var(--c-loss)', 'Sin atender', fmtNum(sinAtender), 'más de ' + umbral + ' h sin ninguna acción de su asesor') +
+    statCard('xCircle', 'var(--c-loss)', 'Sin atender', fmtNum(sinAtender), 'siguen en Hot y más de ' + umbral + ' h sin ninguna acción de su asesor') +
+    statCard('layers', 'var(--ink-soft)', 'Ya no están en Hot', fmtNum(fueraHot), 'la IA los regresó a frío o perdido sin que su asesor los tocara') +
     statCard('clock', 'var(--ink-soft)', 'Tiempo promedio de atención', fmtHoras(promedio), 'en horario laboral, solo los atendidos') +
     '</div>';
 
@@ -1579,17 +1655,19 @@ function renderAtencion(payload) {
       <td class="num"><span class="numval">${fmtNum(a.atendidos)}</span><span class="pct">${pctF(a.atendidos, a.delegados_ia)}</span></td>
       <td class="num"${a.sin_atender ? ' style="color:var(--c-loss)"' : ''}><span class="numval">${fmtNum(a.sin_atender)}</span></td>
       <td class="num">${fmtNum(a.en_plazo)}</td>
+      <td class="num">${fmtNum(a.fuera_de_hot)}</td>
       <td class="num">${fmtHoras(a.promedio_segundos_habiles)}</td>
     </tr>`).join('');
   els.atencionTable.innerHTML = `
     <div class="table-scroll">
     <table>
-      <thead><tr><th>Asesor</th><th class="num">Delegados por la IA</th><th class="num">Atendidos</th><th class="num">Sin atender</th><th class="num">En plazo</th><th class="num">Tiempo promedio (horario laboral)</th></tr></thead>
+      <thead><tr><th>Asesor</th><th class="num">Delegados por la IA</th><th class="num">Atendidos</th><th class="num">Sin atender</th><th class="num">En plazo</th><th class="num">Ya no están en Hot</th><th class="num">Tiempo promedio (horario laboral)</th></tr></thead>
       <tbody>${rows}
         <tr class="totales">
           <td>Total</td><td class="num">${fmtNum(delegados)}</td>
           <td class="num"><span class="numval">${fmtNum(atendidos)}</span><span class="pct">${pctF(atendidos, delegados)}</span></td>
           <td class="num"><span class="numval">${fmtNum(sinAtender)}</span></td><td class="num">${fmtNum(enPlazo)}</td>
+          <td class="num">${fmtNum(fueraHot)}</td>
           <td class="num">${fmtHoras(promedio)}</td>
         </tr>
       </tbody>
@@ -1600,7 +1678,8 @@ function renderAtencion(payload) {
   if (!lista.length) {
     els.atencionSinAtender.innerHTML = '<div class="empty">No hay leads delegados sin atender. 👍</div>';
   } else {
-    const filas = lista.map(s => {
+    const zona = payload.zona_horas;
+    const filas = lista.map((s, i) => {
       const cuanto = haceCuanto(s.entregado);
       return `
       <tr>
@@ -1610,16 +1689,26 @@ function renderAtencion(payload) {
         <td>${s.responsible_user_id ? nombreAgente(s.responsible_user_id) : '—'}</td>
         <td class="num"${cuanto.dias != null && cuanto.dias >= 3 ? ' style="color:var(--c-loss)"' : ''}>${cuanto.texto}</td>
         <td>${s.otra_persona ? 'Sí, otra persona' : 'No'}</td>
-      </tr>`;
+        <td><button type="button" class="btn-hist" data-hist="${i}">Ver qué pasó</button></td>
+      </tr>
+      <tr class="hist-row" id="hist-${i}" hidden><td colspan="7"><div class="hist-box">${historialLeadHtml(s, zona)}</div></td></tr>`;
     }).join('');
     const extra = payload.total_sin_atender > lista.length ? `<div class="help" style="margin-top:8px;">Se muestran los ${lista.length} más antiguos de ${payload.total_sin_atender}.</div>` : '';
     els.atencionSinAtender.innerHTML = `
-      <div class="table-scroll" style="max-height:420px; overflow-y:auto;">
+      <div class="table-scroll" style="max-height:560px; overflow-y:auto;">
       <table>
-        <thead><tr><th>Lead</th><th>Embudo</th><th>Etapa</th><th>Asesor</th><th class="num">Delegado</th><th>¿Lo atendió otra persona?</th></tr></thead>
+        <thead><tr><th>Lead</th><th>Embudo</th><th>Etapa</th><th>Asesor</th><th class="num">Delegado</th><th>¿Lo atendió otra persona?</th><th>Historial</th></tr></thead>
         <tbody>${filas}</tbody>
       </table>
       </div>${extra}`;
+    els.atencionSinAtender.onclick = (ev) => {
+      const b = ev.target.closest && ev.target.closest('.btn-hist');
+      if (!b) return;
+      const fila = document.getElementById('hist-' + b.dataset.hist);
+      if (!fila) return;
+      fila.hidden = !fila.hidden;
+      b.textContent = fila.hidden ? 'Ver qué pasó' : 'Ocultar';
+    };
   }
   els.atencionNota.textContent = payload.nota_metodologica || '';
 }
